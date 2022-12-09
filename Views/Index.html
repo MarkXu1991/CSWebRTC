@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <title>智慧生涯--视频面试</title>
+
+    <!-- Public Header -->
+    <link rel="stylesheet" href="../Content/css/normalize.css" />
+    <link rel="stylesheet" href="../Content/fonts/VX.css">
+    <link rel="stylesheet" href="../Content/css/Index.css?v=20210705" />
+
+    <script src="../Scripts/libs/jquery-1.11.3.min.js"></script>
+    <script src="../Scripts/libs/vue.min.js"></script>
+    <script src="../Scripts/libs/communication.js"></script>
+    
+</head>
+<body>
+    <div class="container" id="app">
+        <div class="wrapper">
+            
+            <!--Logo-->
+            <section class="logo-container">
+                <a href="https://www.vxhcm.com" target="_blank" class="logo-href"><img src="../Content/img/logo.png" class="logo-img"></a>
+            </section>
+
+            <!--Icon-->
+            <section class="pic-container">
+                <!-- No Video -->
+                <div class="no-video" style="display:none;" v-show="videoKey">
+                    <div class="pic pic01"><img src="../Content/img/pic01.png" class="pic-img"></div>
+                    <div class="pic pic02"><img src="../Content/img/pic02.png" class="pic-img"></div>
+                    <div class="pic pic03"><img src="../Content/img/pic03.png" class="pic-img"></div>
+                </div>
+                
+                <!-- Have Video -->
+                <div class="have-video" style="display:none;" v-show="!videoKey">
+                    <div class="pic pic06"><img src="../Content/img/pic06.png" class="pic-img"></div>
+                    <div class="pic pic07"><img src="../Content/img/pic07.png" class="pic-img"></div>
+                    <div class="pic pic08"><img src="../Content/img/pic08.png" class="pic-img"></div>
+                </div>
+            
+                <div class="pic pic04"><img src="../Content/img/pic04.png" class="pic-img"></div>
+                <div class="pic pic05"><img src="../Content/img/pic05.png" class="pic-img"></div>
+
+            </section>
+
+            <!-- Clock -->
+            <section class="clock-container">
+                <span class="icon-time"></span>
+                <span class="clock" id="clock"></span>
+            </section>
+
+            <!-- CountDown -->
+            <section class="flo-container time-container" style="display:none;" v-show="timeKey">
+                <div class="text">距离视频面试开始还有</div>
+                <div class="time-inner" id="countdown"></div>
+            </section>
+
+            <!-- Enter -->
+            <section class="flo-container enter-container" style="display:none;" v-show="!timeKey">
+                <div class="text">面试已经开始</div>
+                <div class="btn-enter" v-on:click="beginInterview">立即进入</div>
+            </section>
+
+            <!-- End -->
+            <section class="flo-container end-container" style="display:none;" v-show="exitKey">
+                <div class="end-img"></div>
+                <div class="text">面试结束</div>
+            </section>
+
+            <!-- Warn -->
+            <section class="warn-container" style="display:none;" v-show="fullKey">
+                <div class="warn-box">
+                    <div class="btn-warn-close" v-on:click="closeWarn"></div>
+                    <div class="warn-img"></div>
+                    <div class="text">人数已满</div>
+                </div>
+            </section>
+
+            <section class="dialog-container" style="display:none;">
+                <div class="warn-box">
+                    <div class="btn-warn-close" id="btn-dialog-close"></div>
+                    <div class="warn-img"></div>
+                    <div class="text">您的浏览器暂不支持视频,为了更好的视频体验:</div>
+                    <div class="tip-box">
+                        <div class="tip">1. Windows系统请使用Chrome浏览器</div>
+                        <div class="tip">2. Mac系统请使用Safari浏览器</div>
+                        <div class="tip">3. IOS系统请使用Safari浏览器</div>
+                        <div class="tip">4. Android系统请下载使用Chrome浏览器</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- End Video -->
+            <section class="end-video-container" style="display:none;" v-show="endVideoKey">
+                <div class="warn-box">
+                    <div class="btn-warn-close" v-on:click="cancelEndVideo"></div>
+                    <div class="warn-img"></div>
+                    <div class="text">是否确定结束本次面试</div>
+                    <div class="btn-box">
+                        <div class="btn-end-confirm btn-end" v-on:click="confrimEndVideo">确定</div>
+                        <div class="btn-end-cancel btn-end" v-on:click="cancelEndVideo">取消</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bottom -->
+            <section class="bottom-container" style="display:none;" v-show="videoKey">
+                <div class="bottom-box">
+                    <div class="top"></div>
+                    <div class="left">
+                        <span class="text">面试已进行</span>
+                        <span id="timer" class="bottom-timer"></span>
+                    </div>
+                    <div class="middle">
+                        <span class="icon icon-KT-User"></span>
+                        <span class="text">共21人参加面试</span>
+                    </div>
+                    <div class="btn-exit" v-on:click="exitInterview"><img src="../Content/img/exit.png" class="exit-img"></div>
+                    <div class="btn-end" v-on:click="EndVideo"><img src="../Content/img/end_button.png" class="end-img"></div>
+                </div>
+            </section>
+
+            <!-- Hide input -->
+            <section class="hide-container">
+                <input type="hidden" autofocus="autofocus">
+            </section>
+
+            <!-- video -->
+            <section class="video-container" style="display:none;" v-show="videoKey">
+                <div class="video-wrapper clearbox">
+                    <div class="left">
+                        <div class="default"></div>
+                        <div class="audio-layer"></div>
+                        <div class="audio-box audio-close">
+                            <span class="icon icon-MaiKeFeng icon-open"></span>
+                            <!-- <span class="icon icon-MaiKeFengGB icon-close"></span> -->
+                        </div>
+                        <div class="name-big overflow-text">David</div>
+
+                        <div id="videoBig">
+                            <!-- <video src="../Content/video/3.mp4" data-videotype="remote" controls style="width:100%; height:100%; object-fit:fill"></video> -->
+                        </div>
+                    </div>
+                    <div class="right" id="video-box">
+                        <ul class="video-list clearbox">
+                            <li class="video-item video-open">
+                                <div class="item-default"></div>
+                                <div class="audio-layer"></div>
+                                <div class="tip">接入中</div>
+                                <div class="ani-box">
+                                    <span class="circle c1"></span>
+                                    <span class="circle c2"></span>
+                                    <span class="circle c3"></span>
+                                    <span class="circle c4"></span>
+                                </div>
+                                <div class="menu-box clearbox">
+                                    <div class="switch item" index="1">
+                                        <span class="icon-PingMuFangDa"></span>
+                                    </div>
+                                    <div class="out item">
+                                        <span class="icon-KT-Out"></span>
+                                    </div>
+                                </div>
+                                <div class="name overflow-text">DavidDavidDavidDavidDavidDavidDavidDavidDavid</div>
+
+
+                                <div id="video01" class="video-layer">
+                                    <video src="../Content/video/3.mp4" data-videotype="remote" controls style="width:100%; height:100%; object-fit:fill"></video>
+                                </div>
+                            </li>
+                            <li class="video-item video-open">
+                                <div class="item-default"></div>
+                                <div class="audio-layer"></div>
+                                <div class="ani-box">
+                                    <span class="circle c1"></span>
+                                    <span class="circle c2"></span>
+                                    <span class="circle c3"></span>
+                                    <span class="circle c4"></span>
+                                </div>
+                                <div class="menu-box clearbox">
+                                    <div class="switch item">
+                                        <span class="icon-PingMuFangDa"></span>
+                                    </div>
+                                    <div class="out item">
+                                        <span class="icon-KT-Out"></span>
+                                    </div>
+                                </div>
+                                <div class="name">David</div>
+
+
+                                <div id="video02" class="video-layer">
+                                    <video src="../Content/video/4.mp4" data-videotype="remote" controls style="width:100%; height:100%; object-fit:fill"></video>
+                                </div>
+                            </li>
+                            <li class="video-item video-open">
+                                <div class="item-default"></div>
+                                <div class="audio-layer"></div>
+                                <div class="ani-box">
+                                    <span class="circle c1"></span>
+                                    <span class="circle c2"></span>
+                                    <span class="circle c3"></span>
+                                    <span class="circle c4"></span>
+                                </div>
+                                <div class="menu-box clearbox">
+                                    <div class="switch item">
+                                        <span class="icon-PingMuFangDa"></span>
+                                    </div>
+                                    <div class="out item">
+                                        <span class="icon-KT-Out"></span>
+                                    </div>
+                                </div>
+                                <div class="name">David</div>
+
+
+                                <div id="video03" class="video-layer">
+                                    <video src=""></video>
+                                </div>
+                            </li>
+                            <li class="video-item video-open">
+                                <div class="item-default"></div>
+                                <div class="audio-layer"></div>
+                                <div class="ani-box">
+                                    <span class="circle c1"></span>
+                                    <span class="circle c2"></span>
+                                    <span class="circle c3"></span>
+                                    <span class="circle c4"></span>
+                                </div>
+                                <div class="menu-box clearbox">
+                                    <div class="switch item">
+                                        <span class="icon-PingMuFangDa"></span>
+                                    </div>
+                                    <div class="out item">
+                                        <span class="icon-KT-Out"></span>
+                                    </div>
+                                </div>
+                                <div class="name">David</div>
+
+                                <div id="video04" class="video-layer">
+                                    <video src=""></video>
+                                </div>
+                            </li>
+                            <li class="video-item video-open">
+                                <div class="item-default"></div>
+                                <div class="audio-layer"></div>
+                                <div class="ani-box">
+                                    <span class="circle c1"></span>
+                                    <span class="circle c2"></span>
+                                    <span class="circle c3"></span>
+                                    <span class="circle c4"></span>
+                                </div>
+                                <div class="menu-box clearbox">
+                                    <div class="switch item">
+                                        <span class="icon-PingMuFangDa"></span>
+                                    </div>
+                                    <div class="out item">
+                                        <span class="icon-KT-Out"></span>
+                                    </div>
+                                </div>
+                                <div class="name">David</div>
+
+
+                                <div id="video05" class="video-layer">
+                                    <video src=""></video>
+                                </div>
+                            </li>
+                            <li class="video-item video-open">
+                                <div class="item-default"></div>
+                                <div class="audio-layer"></div>
+                                <div class="ani-box">
+                                    <span class="circle c1"></span>
+                                    <span class="circle c2"></span>
+                                    <span class="circle c3"></span>
+                                    <span class="circle c4"></span>
+                                </div>
+                                <div class="menu-box clearbox">
+                                    <div class="switch item">
+                                        <span class="icon-PingMuFangDa"></span>
+                                    </div>
+                                    <div class="out item">
+                                        <span class="icon-KT-Out"></span>
+                                    </div>
+                                </div>
+                                <div class="name">David</div>
+
+
+                                <div id="video06" class="video-layer">
+                                    <video src=""></video>
+                                </div>
+                            </li>
+                            <li class="video-item video-open">
+                                <div class="item-default"></div>
+                                <div class="audio-layer"></div>
+                                <div class="ani-box">
+                                    <span class="circle c1"></span>
+                                    <span class="circle c2"></span>
+                                    <span class="circle c3"></span>
+                                    <span class="circle c4"></span>
+                                </div>
+                                <div class="menu-box clearbox">
+                                    <div class="switch item">
+                                        <span class="icon-PingMuFangDa"></span>
+                                    </div>
+                                    <div class="out item">
+                                        <span class="icon-KT-Out"></span>
+                                    </div>
+                                </div>
+                                <div class="name">David</div>
+
+
+                                <div id="video07" class="video-layer">
+                                    <video src=""></video>
+                                </div>
+                            </li>
+                            <li class="video-item video-open">
+                                <div class="item-default"></div>
+                                <div class="audio-layer"></div>
+                                <div class="ani-box">
+                                    <span class="circle c1"></span>
+                                    <span class="circle c2"></span>
+                                    <span class="circle c3"></span>
+                                    <span class="circle c4"></span>
+                                </div>
+                                <div class="menu-box clearbox">
+                                    <div class="switch item">
+                                        <span class="icon-PingMuFangDa"></span>
+                                    </div>
+                                    <div class="out item">
+                                        <span class="icon-KT-Out"></span>
+                                    </div>
+                                </div>
+                                <div class="name">David</div>
+
+
+                                <div id="video08" class="video-layer">
+                                    <video src=""></video>
+                                </div>
+                            </li>
+                            <li class="video-item video-open">
+                                <div class="item-default"></div>
+                                <div class="audio-layer"></div>
+                                <div class="ani-box">
+                                    <span class="circle c1"></span>
+                                    <span class="circle c2"></span>
+                                    <span class="circle c3"></span>
+                                    <span class="circle c4"></span>
+                                </div>
+                                <div class="menu-box clearbox">
+                                    <div class="switch item">
+                                        <span class="icon-PingMuFangDa"></span>
+                                    </div>
+                                    <div class="out item">
+                                        <span class="icon-KT-Out"></span>
+                                    </div>
+                                </div>
+                                <div class="name">David</div>
+
+
+                                <div id="video09" class="video-layer">
+                                    <video src=""></video>
+                                </div>
+                            </li>
+                            <li class="video-item video-open">
+                                <div class="item-default"></div>
+                                <div class="audio-layer"></div>
+                                <div class="ani-box">
+                                    <span class="circle c1"></span>
+                                    <span class="circle c2"></span>
+                                    <span class="circle c3"></span>
+                                    <span class="circle c4"></span>
+                                </div>
+                                <div class="menu-box clearbox">
+                                    <div class="switch item">
+                                        <span class="icon-PingMuFangDa"></span>
+                                    </div>
+                                    <div class="out item">
+                                        <span class="icon-KT-Out"></span>
+                                    </div>
+                                </div>
+                                <div class="name">David</div>
+
+
+                                <div id="video10" class="video-layer">
+                                    <video src=""></video>
+                                </div>
+                            </li>
+                            <li class="video-item video-open">
+                                <div class="item-default"></div>
+                                <div class="audio-layer"></div>
+                                <div class="ani-box">
+                                    <span class="circle c1"></span>
+                                    <span class="circle c2"></span>
+                                    <span class="circle c3"></span>
+                                    <span class="circle c4"></span>
+                                </div>
+                                <div class="menu-box clearbox">
+                                    <div class="switch item">
+                                        <span class="icon-PingMuFangDa"></span>
+                                    </div>
+                                    <div class="out item">
+                                        <span class="icon-KT-Out"></span>
+                                    </div>
+                                </div>
+                                <div class="name">David</div>
+
+
+                                <div id="video11" class="video-layer">
+                                    <video src=""></video>
+                                </div>
+                            </li>
+                            <li class="video-item video-open">
+                                <div class="item-default"></div>
+                                <div class="audio-layer"></div>
+                                <div class="ani-box">
+                                    <span class="circle c1"></span>
+                                    <span class="circle c2"></span>
+                                    <span class="circle c3"></span>
+                                    <span class="circle c4"></span>
+                                </div>
+                                <div class="menu-box clearbox">
+                                    <div class="switch item">
+                                        <span class="icon-PingMuFangDa"></span>
+                                    </div>
+                                    <div class="out item">
+                                        <span class="icon-KT-Out"></span>
+                                    </div>
+                                </div>
+                                <div class="name">David</div>
+
+
+                                <div id="video12" class="video-layer">
+                                    <video src=""></video>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+        </div>
+    </div>
+
+    <script src="../Scripts/libs/jquery.nicescroll.js"></script>
+    <script src="../Scripts/js/Time.js"></script>
+    <script src="../Scripts/js/Index.js?v=20210705"></script>
+
+</body>
+</html>
